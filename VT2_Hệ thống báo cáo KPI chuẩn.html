@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Trị 6 RÕ & KPI - MN Vĩnh Thanh 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .tab-active { border-bottom: 3px solid #1d4ed8; color: #1d4ed8; font-weight: 700; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-blue-800 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-blue-900 rounded-lg">
+          <i data-lucide="school" class="w-6 h-6 text-yellow-300"></i>
+        </div>
+        <div>
+          <h1 class="text-base md:text-lg font-bold tracking-tight">TRƯỜNG MẦM NON VĨNH THANH 2</h1>
+          <p class="text-xs text-blue-200">Hệ Thống 6 RÕ - KPI (114 Cán bộ, Giáo viên, Nhân viên - 03 Khu: Ngọc Chi - Tàm Xá - Vĩnh Thanh)</p>
+        </div>
+      </div>
+
+      <!-- Chu kỳ tháng & Quản trị Admin -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center bg-blue-900/90 px-2.5 py-1.5 rounded-lg border border-blue-700 text-xs">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-yellow-300 mr-1.5"></i>
+          <span class="text-blue-200 mr-1">Tháng:</span>
+          <select id="current-month-select" onchange="changeMonthCycle()" class="bg-transparent text-white font-bold focus:outline-none cursor-pointer">
+            <option value="9/2026" class="text-slate-800">Tháng 9/2026</option>
+            <option value="10/2026" class="text-slate-800">Tháng 10/2026</option>
+            <option value="11/2026" class="text-slate-800">Tháng 11/2026</option>
+            <option value="12/2026" class="text-slate-800">Tháng 12/2026</option>
+            <option value="1/2027" class="text-slate-800">Tháng 1/2027</option>
+            <option value="2/2027" class="text-slate-800">Tháng 2/2027</option>
+            <option value="3/2027" class="text-slate-800">Tháng 3/2027</option>
+            <option value="4/2027" class="text-slate-800">Tháng 4/2027</option>
+            <option value="5/2027" class="text-slate-800">Tháng 5/2027</option>
+            <option value="6/2027" class="text-slate-800">Tháng 6/2027</option>
+            <option value="7/2027" class="text-slate-800">Tháng 7/2027</option>
+            <option value="8/2027" class="text-slate-800">Tháng 8/2027</option>
+          </select>
+        </div>
+
+        <div id="admin-badge" class="hidden text-xs bg-emerald-600 text-white px-2.5 py-1.5 rounded-lg font-semibold flex items-center gap-1 shadow">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Quản Trị (Admin)
+        </div>
+        <button id="btn-login-admin" onclick="openAdminModal()" class="text-xs bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1 shadow transition">
+          <i data-lucide="lock" class="w-3.5 h-3.5"></i> Đăng nhập Admin
+        </button>
+        <button id="btn-logout-admin" onclick="logoutAdmin()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Thoát Admin
+        </button>
+        <button onclick="exportCSV()" class="bg-blue-700 hover:bg-blue-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow transition">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Xuất Báo Cáo
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white text-slate-600 border-b shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 flex space-x-2 md:space-x-6 text-xs md:text-sm overflow-x-auto">
+        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-3 px-2 flex items-center gap-1.5 tab-active whitespace-nowrap">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard Giao Ban
+        </button>
+        <button onclick="switchTab('tasks')" id="tab-tasks" class="py-3 px-2 flex items-center gap-1.5 text-slate-500 hover:text-slate-900 whitespace-nowrap">
+          <i data-lucide="list-todo" class="w-4 h-4"></i> Bảng Nhiệm Vụ 6 RÕ
+        </button>
+        <button onclick="switchTab('catalog')" id="tab-catalog" class="py-3 px-2 flex items-center gap-1.5 text-slate-500 hover:text-slate-900 whitespace-nowrap">
+          <i data-lucide="book-open" class="w-4 h-4"></i> Danh Mục SP - Công Việc (180 việc)
+        </button>
+        <button onclick="switchTab('kpi')" id="tab-kpi" class="py-3 px-2 flex items-center gap-1.5 text-slate-500 hover:text-slate-900 whitespace-nowrap">
+          <i data-lucide="award" class="w-4 h-4"></i> Tổng Hợp KPI Tháng
+        </button>
+        <button onclick="switchTab('monitor')" id="tab-monitor" class="py-3 px-2 flex items-center gap-1.5 text-slate-500 hover:text-slate-900 whitespace-nowrap">
+          <i data-lucide="radar" class="w-4 h-4"></i> Giám Sát Tiến Độ & Xếp Loại 6 RÕ
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 py-5 flex-1 w-full space-y-5">
+
+    <!-- 1. TAB DASHBOARD -->
+    <section id="view-dashboard" class="space-y-5">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase">
+            <span>Tổng số việc</span>
+            <i data-lucide="layers" class="w-4 h-4 text-blue-500"></i>
+          </div>
+          <div class="text-2xl font-bold mt-1 text-slate-800" id="stat-total">0</div>
+          <div class="text-[11px] text-slate-400" id="stat-cycle-label">Tháng 9/2026</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase">
+            <span>Hoàn thành đạt</span>
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+          </div>
+          <div class="text-2xl font-bold mt-1 text-emerald-600" id="stat-done">0</div>
+          <div class="text-[11px] text-emerald-600 font-semibold" id="stat-rate">0% đúng hạn</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase">
+            <span>Chờ BGH duyệt</span>
+            <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
+          </div>
+          <div class="text-2xl font-bold mt-1 text-amber-600" id="stat-pending">0</div>
+          <div class="text-[11px] text-slate-400">Đã nộp minh chứng</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-red-200 bg-red-50/50 shadow-sm">
+          <div class="flex items-center justify-between text-red-600 text-[11px] font-bold uppercase">
+            <span>Quá hạn / Trì trệ</span>
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-red-500"></i>
+          </div>
+          <div class="text-2xl font-bold mt-1 text-red-600" id="stat-overdue">0</div>
+          <div class="text-[11px] text-red-500">Cần chỉ đạo giao ban</div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border border-rose-300 bg-rose-50 shadow-sm col-span-2 md:col-span-1">
+          <div class="flex items-center justify-between text-rose-700 text-[11px] font-bold uppercase">
+            <span>An toàn trẻ (ATT)</span>
+            <i data-lucide="shield-alert" class="w-4 h-4 text-rose-600"></i>
+          </div>
+          <div class="text-2xl font-bold mt-1 text-rose-700" id="stat-att">0</div>
+          <div class="text-[11px] text-rose-600">Nhiệm vụ ưu tiên cao</div>
+        </div>
+      </div>
+
+      <!-- Thống kê theo 03 Khu -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm">
+          <h3 class="text-xs font-bold uppercase text-slate-600 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Khu Ngọc Chi
+          </h3>
+          <div class="mt-2 flex justify-between items-end">
+            <div>
+              <div class="text-xl font-bold text-slate-800" id="area-nc-count">0 việc</div>
+              <div class="text-[11px] text-slate-400">Trụ sở chính</div>
+            </div>
+            <div class="text-right text-xs font-bold text-emerald-600" id="area-nc-rate">0% hoàn thành</div>
+          </div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm">
+          <h3 class="text-xs font-bold uppercase text-slate-600 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> Khu Tàm Xá
+          </h3>
+          <div class="mt-2 flex justify-between items-end">
+            <div>
+              <div class="text-xl font-bold text-slate-800" id="area-tx-count">0 việc</div>
+              <div class="text-[11px] text-slate-400">Thôn Đoài & Thôn Đông</div>
+            </div>
+            <div class="text-right text-xs font-bold text-emerald-600" id="area-tx-rate">0% hoàn thành</div>
+          </div>
+        </div>
+        <div class="bg-white p-3.5 rounded-xl border shadow-sm">
+          <h3 class="text-xs font-bold uppercase text-slate-600 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-600"></span> Khu Vĩnh Thanh
+          </h3>
+          <div class="mt-2 flex justify-between items-end">
+            <div>
+              <div class="text-xl font-bold text-slate-800" id="area-vt-count">0 việc</div>
+              <div class="text-[11px] text-slate-400">Điểm Vĩnh Thanh</div>
+            </div>
+            <div class="text-right text-xs font-bold text-emerald-600" id="area-vt-rate">0% hoàn thành</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danh mục việc cần xử lý gấp tại giao ban -->
+      <div class="bg-white p-4 rounded-xl border shadow-sm space-y-3">
+        <div class="flex items-center justify-between border-b pb-2.5">
+          <h2 class="text-xs md:text-sm font-bold text-slate-800 flex items-center gap-1.5">
+            <i data-lucide="flame" class="w-4 h-4 text-rose-600"></i> VIỆC CẦN XỬ LÝ GẤP TẠI GIAO BAN THỨ HAI (MẪU BM05)
+          </h2>
+          <span class="text-[11px] bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-medium">BGH 15 Phút</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-600 uppercase font-semibold">
+              <tr>
+                <th class="p-2">Mã NV</th>
+                <th class="p-2">Khu vực</th>
+                <th class="p-2">Nhiệm vụ</th>
+                <th class="p-2">Người chủ trì</th>
+                <th class="p-2">Hạn chót</th>
+                <th class="p-2">Tiến độ</th>
+                <th class="p-2">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody id="hot-tasks-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TAB BẢNG NHIỆM VỤ 6 RÕ -->
+    <section id="view-tasks" class="space-y-4 hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border shadow-sm">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="filter-area" onchange="renderTasksTable()" class="bg-slate-50 border text-xs rounded-lg px-2.5 py-2 font-medium">
+            <option value="ALL">-- Tất cả 03 Khu --</option>
+            <option value="Khu Ngọc Chi">Khu Ngọc Chi</option>
+            <option value="Khu Tàm Xá">Khu Tàm Xá</option>
+            <option value="Khu Vĩnh Thanh">Khu Vĩnh Thanh</option>
+          </select>
+          <select id="filter-assignee" onchange="renderTasksTable()" class="bg-slate-50 border text-xs rounded-lg px-2.5 py-2 font-medium max-w-xs">
+            <option value="ALL">-- Lọc theo nhân sự (114 người) --</option>
+          </select>
+          <select id="filter-type" onchange="renderTasksTable()" class="bg-slate-50 border text-xs rounded-lg px-2.5 py-2 font-medium">
+            <option value="ALL">-- Tất cả tính chất --</option>
+            <option value="Thường xuyên">Thường xuyên (Lặp lại)</option>
+            <option value="Phát sinh">Phát sinh</option>
+          </select>
+          <select id="filter-status" onchange="renderTasksTable()" class="bg-slate-50 border text-xs rounded-lg px-2.5 py-2 font-medium">
+            <option value="ALL">-- Tất cả trạng thái --</option>
+            <option value="Đang thực hiện">Đang thực hiện</option>
+            <option value="Chờ duyệt">Chờ duyệt</option>
+            <option value="Hoàn thành">Hoàn thành</option>
+            <option value="Quá hạn">Quá hạn</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openCreateTaskModal(false)" class="bg-emerald-700 hover:bg-emerald-600 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow font-semibold transition">
+            <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Tự Đăng Ký / Báo Cáo
+          </button>
+          <button id="btn-admin-clone" onclick="cloneRecurringTasks()" class="hidden bg-slate-700 hover:bg-slate-600 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow font-semibold transition">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Sao Chép Việc Lặp Lại
+          </button>
+          <button id="btn-create-task" onclick="openCreateTaskModal(true)" class="hidden bg-blue-700 hover:bg-blue-600 text-white text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 shadow font-bold transition">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Giao Việc 6 RÕ (Admin)
+          </button>
+        </div>
+      </div>
+
+      <!-- Bảng Nhiệm Vụ -->
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 text-slate-700 uppercase font-semibold border-b">
+              <tr>
+                <th class="p-3">Mã NV</th>
+                <th class="p-3">Nhiệm vụ 6 RÕ</th>
+                <th class="p-3">Khu vực</th>
+                <th class="p-3">Chủ trì</th>
+                <th class="p-3">Người duyệt</th>
+                <th class="p-3">Hạn chót</th>
+                <th class="p-3">Tính chất</th>
+                <th class="p-3">Tiến độ</th>
+                <th class="p-3">Trạng thái</th>
+                <th class="p-3 text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TAB DANH MỤC SẢN PHẨM - CÔNG VIỆC CHUẨN (180 VIỆC) -->
+    <section id="view-catalog" class="space-y-4 hidden">
+      <div class="bg-white p-3.5 rounded-xl border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-sm font-bold text-slate-800">DANH MỤC SẢN PHẨM - CÔNG VIỆC CHUẨN (180 NHIỆM VỤ NĂM HỌC 2026 - 2027)</h2>
+          <p class="text-xs text-slate-500">Tra cứu ngân hàng công việc chi tiết của từng vị trí để giao việc hoặc đăng ký thực hiện</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="catalog-search" oninput="renderCatalogTable()" placeholder="Tìm kiếm nhiệm vụ, sản phẩm..." class="border rounded-lg px-3 py-1.5 text-xs bg-slate-50 w-64">
+          <select id="catalog-filter-group" onchange="renderCatalogTable()" class="border rounded-lg px-3 py-1.5 text-xs bg-slate-50 font-medium">
+            <option value="ALL">-- Tất cả 10 nhóm đối tượng --</option>
+            <option value="Hiệu trưởng">Hiệu trưởng (21 việc)</option>
+            <option value="PHT Chuyên môn">PHT Chuyên môn (43 việc)</option>
+            <option value="PHT Nuôi dưỡng - AT - CSVC">PHT Nuôi dưỡng - AT - CSVC (47 việc)</option>
+            <option value="Tổ trưởng chuyên môn">Tổ trưởng chuyên môn (12 việc)</option>
+            <option value="Kế toán">Kế toán (14 việc)</option>
+            <option value="Văn thư">Văn thư (15 việc)</option>
+            <option value="Y tế học đường">Y tế học đường (6 việc)</option>
+            <option value="Bảo vệ">Bảo vệ (5 việc)</option>
+            <option value="Nhân viên nuôi dưỡng">Nhân viên nuôi dưỡng (5 việc)</option>
+            <option value="Giáo viên">Giáo viên (12 việc)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-[650px]">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 text-slate-700 uppercase font-semibold border-b sticky top-0 z-10 shadow-sm">
+              <tr>
+                <th class="p-3">Nhóm / Vị trí</th>
+                <th class="p-3">Nhiệm vụ chuẩn</th>
+                <th class="p-3">Công việc chi tiết</th>
+                <th class="p-3">Sản phẩm đầu ra</th>
+                <th class="p-3 text-center">Tần suất</th>
+                <th class="p-3 text-center">Nhóm</th>
+                <th class="p-3 text-center">Điểm</th>
+                <th class="p-3 text-center">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="catalog-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TAB TỔNG HỢP KPI THÁNG -->
+    <section id="view-kpi" class="space-y-4 hidden">
+      <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-xl text-xs text-blue-900 flex items-center gap-3">
+        <i data-lucide="info" class="w-5 h-5 text-blue-700 flex-shrink-0"></i>
+        <span>
+          <b>Nguyên tắc tính KPI tự động (QĐ 03 & Điều 10):</b> Tỷ lệ hoàn thành = $\frac{\text{Số việc đạt}}{\text{Tổng việc} - \text{Việc trễ khách quan}} \times 100\%$. Tự động tính toán tức thì theo chu kỳ tháng đang chọn.
+        </span>
+      </div>
+
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="p-3.5 border-b flex justify-between items-center">
+          <h2 class="text-xs md:text-sm font-bold text-slate-800 uppercase tracking-wide" id="kpi-table-title">BẢNG TÍNH ĐIỂM KPI CÔNG VIỆC THÁNG 9/2026</h2>
+          <button onclick="exportCSV()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border font-semibold flex items-center gap-1">
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Xuất Báo Cáo KPI
+          </button>
+        </div>
+        <div class="overflow-x-auto max-h-[600px]">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-700 uppercase font-semibold border-b sticky top-0 z-10">
+              <tr>
+                <th class="p-3">Vị trí / Cá nhân</th>
+                <th class="p-3">Khu vực</th>
+                <th class="p-3 text-center">Tổng việc</th>
+                <th class="p-3 text-center">Đang làm</th>
+                <th class="p-3 text-center">Trễ khách quan</th>
+                <th class="p-3 text-center">Hoàn thành đạt</th>
+                <th class="p-3 text-center">Tiến độ TB</th>
+                <th class="p-3 text-center">Tỷ lệ KPI (%)</th>
+                <th class="p-3 text-center">Xếp loại tháng</th>
+              </tr>
+            </thead>
+            <tbody id="kpi-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. TAB GIÁM SÁT TIẾN ĐỘ & XẾP LOẠI 6 RÕ -->
+    <section id="view-monitor" class="space-y-5 hidden">
+      <div class="bg-slate-900 text-white p-4 rounded-xl shadow flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-sm font-bold flex items-center gap-2">
+            <i data-lucide="eye" class="w-4 h-4 text-yellow-400"></i> BẢNG GIÁM SÁT TIẾN ĐỘ 6 RÕ DÀNH CHO QUẢN TRỊ VIÊN
+          </h2>
+          <p class="text-xs text-slate-300 mt-0.5">Tách bạch rõ ràng người hoàn thành xuất sắc và các trường hợp trì trệ, chậm tiến độ</p>
+        </div>
+        <div class="text-xs font-mono bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 text-yellow-300" id="monitor-month-tag">
+          Chu kỳ: Tháng 9/2026
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- NHÓM XUẤT SẮC -->
+        <div class="bg-white p-4 rounded-xl border border-emerald-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b pb-2.5">
+            <h3 class="text-xs font-bold uppercase text-emerald-700 flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i> HOÀN THÀNH XUẤT SẮC / ĐÚNG HẠN (≥ 95%)
+            </h3>
+            <span class="text-[11px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full" id="count-excellent">0 cá nhân</span>
+          </div>
+          <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-emerald-50/60 text-emerald-900 uppercase font-semibold sticky top-0">
+                <tr>
+                  <th class="p-2">Cá nhân</th>
+                  <th class="p-2">Khu vực</th>
+                  <th class="p-2 text-center">Số việc xong</th>
+                  <th class="p-2 text-center">Tỷ lệ KPI</th>
+                  <th class="p-2 text-center">Đánh giá</th>
+                </tr>
+              </thead>
+              <tbody id="monitor-excellent-body" class="divide-y divide-emerald-50"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- NHÓM TRÌ TRỆ / QUÁ HẠN -->
+        <div class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b pb-2.5">
+            <h3 class="text-xs font-bold uppercase text-rose-700 flex items-center gap-1.5">
+              <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i> TRÌ TRỆ / QUÁ HẠN / CẦN ĐÔN ĐỐC (< 80%)
+            </h3>
+            <span class="text-[11px] font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full" id="count-sluggish">0 cá nhân</span>
+          </div>
+          <div class="overflow-x-auto max-h-[450px]">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-rose-50/60 text-rose-900 uppercase font-semibold sticky top-0">
+                <tr>
+                  <th class="p-2">Cá nhân</th>
+                  <th class="p-2">Khu vực</th>
+                  <th class="p-2 text-center">Việc trễ</th>
+                  <th class="p-2 text-center">Tỷ lệ KPI</th>
+                  <th class="p-2 text-center">Biện pháp xử lý</th>
+                </tr>
+              </thead>
+              <tbody id="monitor-sluggish-body" class="divide-y divide-rose-50"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: GIAO VIỆC / SỬA NHIỆM VỤ 6 RÕ -->
+  <div id="modal-create-task" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2" id="create-modal-title">
+          <i data-lucide="file-plus" class="w-5 h-5 text-blue-700"></i> THIẾT LẬP NHIỆM VỤ 6 RÕ (MẪU BM01)
+        </h3>
+        <button onclick="closeCreateTaskModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="form-create-task" onsubmit="handleSaveTaskForm(event)" class="space-y-3">
+        <input type="hidden" id="c-mode" value="CREATE">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Mã NV</label>
+            <input type="text" id="c-id" readonly class="w-full bg-slate-100 border rounded-lg p-2 font-mono font-bold text-blue-800">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Khu vực điều hành *</label>
+            <select id="c-area" required class="w-full border rounded-lg p-2 bg-white">
+              <option value="Khu Ngọc Chi">Khu Ngọc Chi</option>
+              <option value="Khu Tàm Xá">Khu Tàm Xá</option>
+              <option value="Khu Vĩnh Thanh">Khu Vĩnh Thanh</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Tính chất nhiệm vụ</label>
+            <select id="c-recurring" class="w-full border rounded-lg p-2 bg-white font-medium">
+              <option value="Thường xuyên">Thường xuyên (Lặp lại hàng tháng)</option>
+              <option value="Phát sinh">Phát sinh</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Rõ việc (Nội dung & Sản phẩm nghiệm thu) *</label>
+          <textarea id="c-desc" rows="2" required placeholder="Ghi rõ hành động, yêu cầu chất lượng..." class="w-full border rounded-lg p-2"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Người chủ trì (Chọn trong danh sách hoặc tự nhập) *</label>
+            <input list="staff-datalist" id="c-assignee" required placeholder="Gõ tìm kiếm 114 cán bộ, giáo viên..." class="w-full border rounded-lg p-2 font-medium">
+            <datalist id="staff-datalist"></datalist>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Người duyệt (Thẩm quyền Điều 7) *</label>
+            <select id="c-approver" class="w-full border rounded-lg p-2 bg-white">
+              <option value="Hiệu trưởng">Hiệu trưởng (Phạm Thị Nội Hà)</option>
+              <option value="PHT1">PHT1 (Hoàng Thị Kiều Mai - Chuyên môn)</option>
+              <option value="PHT2">PHT2 (Nguyễn Thị Miền - Nuôi dưỡng, CSVC)</option>
+              <option value="Tổ trưởng">Tổ trưởng chuyên môn</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1 text-rose-600">An toàn trẻ (ATT)</label>
+            <select id="c-att" class="w-full border rounded-lg p-2 bg-white font-bold text-rose-600">
+              <option value="Không">Không</option>
+              <option value="Có">Có (Ưu tiên cao)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Rõ thẩm quyền</label>
+            <input type="text" id="c-authority" placeholder="Tự quyết... Xin ý kiến..." class="w-full border rounded-lg p-2">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Hạn hoàn thành *</label>
+            <input type="datetime-local" id="c-deadline" required class="w-full border rounded-lg p-2 font-medium">
+          </div>
+        </div>
+
+        <div class="pt-3 border-t flex justify-end gap-2">
+          <button type="button" onclick="closeCreateTaskModal()" class="px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-200">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 font-bold shadow" id="btn-submit-task">Lưu Nhiệm Vụ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: BÁO CÁO TIẾN ĐỘ & PHÊ DUYỆT NGHIỆM THU -->
+  <div id="modal-report-progress" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i data-lucide="send" class="w-5 h-5 text-indigo-600"></i> BÁO CÁO TIẾN ĐỘ & NGHIỆM THU
+        </h3>
+        <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-slate-50 p-3 rounded-lg border">
+          <span class="font-mono font-bold text-blue-700" id="r-task-id"></span>
+          <p class="font-semibold text-slate-800 mt-1" id="r-task-desc"></p>
+          <div class="text-[11px] text-slate-500 mt-1" id="r-task-meta"></div>
+        </div>
+
+        <div>
+          <div class="flex justify-between font-semibold mb-1">
+            <label>Mức độ hoàn thành (%):</label>
+            <span id="r-progress-val" class="text-blue-700 font-bold text-sm">0%</span>
+          </div>
+          <input type="range" id="r-progress" min="0" max="100" step="10" oninput="updateProgressLabel(this.value)" class="w-full accent-blue-600 cursor-pointer">
+          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+            <span>0% (Mới nhận)</span>
+            <span>50% (Đang làm)</span>
+            <span>100% (Hoàn thành)</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Ghi chú sản phẩm bàn giao / Kết quả thực hiện</label>
+          <textarea id="r-result" rows="2" placeholder="Ghi rõ số lượng, tình hình thực hiện, kết quả đạt được..." class="w-full border rounded-lg p-2"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">Đường dẫn minh chứng (Google Drive / Ảnh tem / Báo cáo)</label>
+          <input type="url" id="r-proof" placeholder="https://drive.google.com/..." class="w-full border rounded-lg p-2">
+        </div>
+
+        <!-- Phân hệ Admin Duyệt -->
+        <div id="admin-approval-section" class="p-3 bg-amber-50 rounded-lg border border-amber-200 space-y-2 hidden">
+          <div class="font-bold text-amber-900 flex items-center gap-1">
+            <i data-lucide="award" class="w-4 h-4"></i> Phê Duyệt Của Ban Giám Hiệu:
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-medium mb-1">Kết luận nghiệm thu:</label>
+              <select id="r-admin-status" class="w-full border rounded-lg p-1.5 bg-white font-medium">
+                <option value="Đang thực hiện">Đang thực hiện</option>
+                <option value="Chờ duyệt">Chờ duyệt</option>
+                <option value="Hoàn thành">Đạt - Hoàn thành</option>
+                <option value="Quá hạn">Không đạt / Quá hạn</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Xác nhận trễ hạn:</label>
+              <select id="r-admin-reason" class="w-full border rounded-lg p-1.5 bg-white">
+                <option value="Bình thường">Bình thường (Đúng hạn)</option>
+                <option value="Trễ khách quan (BM08)">Trễ khách quan (Miễn trừ KPI)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t flex justify-end gap-2">
+          <button type="button" onclick="closeReportModal()" class="px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-200">Đóng</button>
+          <button type="button" onclick="handleSaveReport()" class="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-600 font-bold shadow">Lưu Báo Cáo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LOGIN ADMIN -->
+  <div id="modal-admin" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-3 text-xs">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-blue-700"></i> ĐĂNG NHẬP BAN GIÁM HIỆU
+        </h3>
+        <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Mật khẩu Quản trị (Mặc định: admin123)</label>
+        <input type="password" id="admin-pass" placeholder="Nhập mật khẩu..." class="w-full border rounded-lg p-2.5">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeAdminModal()" class="px-3 py-1.5 bg-slate-100 rounded-lg">Hủy</button>
+        <button onclick="loginAdmin()" class="px-3 py-1.5 bg-blue-700 text-white rounded-lg font-bold">Xác Nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT TOÀN BỘ LOGIC -->
+  <script>
+    // TOÀN BỘ 114 CÁN BỘ, GIÁO VIÊN, NHÂN VIÊN TRƯỜNG MẦM NON VĨNH THANH 2
+    const RAW_STAFF = [
+      {"name": "Phạm Thị Nội Hà", "role": "Hiệu trưởng", "team": "Ban Giám hiệu", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Kiều Mai", "role": "Phó Hiệu trưởng 1", "team": "Ban Giám hiệu", "area": "Khu Tàm Xá"},
+      {"name": "Nguyễn Thị Miền", "role": "Phó Hiệu trưởng 2", "team": "Ban Giám hiệu", "area": "Khu Vĩnh Thanh"},
+      {"name": "Nguyễn Thị Toàn", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Kim Dung", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Nguyệt", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thanh Hằng", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hồng Nhâm", "role": "Tổ trưởng", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Cao Thị Vân", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thúy Hằng", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Cúc", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thu Huyền", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Hằng", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Duyên", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Vương Thị Thùy", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hằng", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Vân", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Thảo", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Ngô Thị Thu Trang", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Mai Loan", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Hồng Hạnh", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Diệu Hương", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Bích Thủy", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Đặng Thị Huyền", "role": "Thành viên", "team": "Tổ lớn", "area": "Khu Ngọc Chi"},
+      {"name": "Vương Thị Hà", "role": "Tổ phó", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Yến", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hồng Nhung", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Nguyệt", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Hải Hà", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Nhung", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Bùi Thanh Hòa", "role": "Tổ trưởng", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Phương Loan", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Thu Hương", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hằng (A)", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Dung", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Thúy Hường", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Huệ", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thùy Dung", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Kiều", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Đặng Thị Thúy", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Thảo (B)", "role": "Thành viên", "team": "Tổ nhỡ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Tuyết Mai", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thúy", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thơm", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Đỗ Thị Chuyên", "role": "Tổ trưởng", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thu Hiền", "role": "Tổ phó", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Ngô Thị Thu Hiền", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Đỗ Thị Thu Trang", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Nguyệt", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thanh Hà", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Phan Thị Hải Yến", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Phạm Bích Ngọc", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Dương Thùy Linh", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Mai", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Kim Loan", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Đoàn Thị Thơm", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Trịnh Thị Thùy", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thanh Thủy", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thu Thủy", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thùy", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Huyền", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Trương Thị Hồng", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Nga", "role": "Thành viên", "team": "Tổ bé", "area": "Khu Ngọc Chi"},
+      {"name": "Đỗ Thị Thu Hoài", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thoa", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thu Hương", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Bích Ngọc", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Lương", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Quỳnh Diên", "role": "Tổ trưởng", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Thùy Dung", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Liên", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hòa (B)", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Dương Thị Tươi", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Huyền Trang", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thu Trang", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Ngô Thị Phương", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Kim Thanh", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Lương Thị Thanh Huyền", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Phạm Thị Loan", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Mai", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Vũ Thị Nguyệt", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thùy Linh", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Đặng Thị Hồng", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Dung (B)", "role": "Thành viên", "team": "Tổ nhà trẻ", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hòa", "role": "Tổ trưởng", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Mận", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thúy Nga", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Minh Phượng", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Thúy (C)", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Dung", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Ngô Thị Thu", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Cúc", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Phạm Thị Tâm", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Lương Thị Thanh", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Huyền", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Hồng", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Thị Châm", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Đào Thị Lương", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Hải", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Phạm Thị Vân", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Tấm", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Nhàn", "role": "Thành viên", "team": "Tổ Nuôi", "area": "Khu Ngọc Chi"},
+      {"name": "Phạm Thị Hồng Phượng", "role": "Kế toán (Tổ trưởng)", "team": "Tổ Hành chính", "area": "Khu Ngọc Chi"},
+      {"name": "Nguyễn Thị Lan", "role": "Y tế kiêm Thủ quỹ (Tổ phó)", "team": "Tổ Hành chính", "area": "Khu Vĩnh Thanh"},
+      {"name": "Đào Thúy Ánh", "role": "Kế toán (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Ngọc Chi"},
+      {"name": "Hoàng Việt Anh", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Tàm Xá"},
+      {"name": "Trần Thế Hoàng", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Ngọc Chi"},
+      {"name": "Trần Thị Hà", "role": "Văn thư (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Ngọc Chi"},
+      {"name": "Lê Thị Linh", "role": "Y tế (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Tàm Xá"},
+      {"name": "Nguyễn Ngọc Huy", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Vĩnh Thanh"},
+      {"name": "Nguyễn Văn Dũng", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Ngọc Chi"},
+      {"name": "Phạm Văn Tuấn", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Tàm Xá"},
+      {"name": "Nguyễn Văn Thắng", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Vĩnh Thanh"},
+      {"name": "Hoàng Văn Tuấn", "role": "Bảo vệ (Thành viên)", "team": "Tổ Hành chính", "area": "Khu Ngọc Chi"}
+    ];
+
+    // TOÀN BỘ 180 SẢN PHẨM / CÔNG VIỆC CHUẨN TỪ FILE EXCEL
+    const CATALOG_DATA = [
+      {"sec": "Hiệu trưởng", "name": "Xây dựng, ban hành Nghị quyết, Chương trình công tác của Đảng bộ nhà trường", "detail": "Xây dựng dự thảo Nghị quyết/Chương trình công tác năm; báo cáo Đảng ủy xã; thông qua Chi ủy, đảng viên; ký ban hành", "product": "Nghị quyết, Chương trình công tác Đảng bộ", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Chủ trì sinh hoạt Đảng bộ định kỳ", "detail": "Chuẩn bị nội dung; chủ trì sinh hoạt; kết luận, phân công nhiệm vụ đảng viên", "product": "Nghị quyết, Biên bản sinh hoạt Đảng bộ", "freq": "1 lần/tháng", "group": "N2", "score": "200"},
+      {"sec": "Hiệu trưởng", "name": "Xây dựng kế hoạch, tổ chức phát triển đảng viên mới", "detail": "Rà soát, bồi dưỡng quần chúng ưu tú; hoàn thiện hồ sơ đề nghị kết nạp Đảng", "product": "Kế hoạch phát triển đảng viên, Hồ sơ kết nạp", "freq": "Theo năm/khi có nguồn", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Chỉ đạo công tác kiểm tra, giám sát của Đảng bộ đối với các chi bộ, đảng viên", "detail": "Xây dựng kế hoạch kiểm tra, giám sát; tổ chức thực hiện; kết luận, xử lý (nếu có)", "product": "Kế hoạch, Biên bản kiểm tra - giám sát", "freq": "1-2 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Tổ chức kiểm điểm, đánh giá, xếp loại chất lượng tổ chức đảng và đảng viên cuối năm", "detail": "Tổ chức kiểm điểm tập thể, cá nhân; tổng hợp kết quả; đề nghị công nhận danh hiệu", "product": "Bản kiểm điểm, Biên bản đánh giá xếp loại", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Báo cáo công tác xây dựng Đảng định kỳ với Đảng ủy xã Vĩnh Thanh", "detail": "Tổng hợp kết quả hoạt động của Đảng bộ; xây dựng báo cáo gửi Đảng ủy xã", "product": "Báo cáo công tác Đảng", "freq": "Hàng quý/năm", "group": "N2", "score": "200"},
+      {"sec": "Hiệu trưởng", "name": "Xây dựng, ban hành KH giáo dục năm học", "detail": "Lập KH toàn trường", "product": "KH GD", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Ban hành QĐ thành lập ban/tổ, phân công", "detail": "Thành lập BGH, HĐTĐKT", "product": "QĐ thành lập", "freq": "Đầu năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Ban hành QC chi tiêu nội bộ, dân chủ", "detail": "Xây dựng QC", "product": "Quy chế", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Chỉ đạo, phê duyệt hồ sơ tuyển sinh", "detail": "Phê duyệt danh sách", "product": "Hồ sơ TS", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Chủ trì họp HĐSP định kỳ", "detail": "Họp hàng tháng", "product": "Biên bản", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Hiệu trưởng", "name": "Ký QĐ phân công chuyên môn, bổ nhiệm", "detail": "Phân công GV", "product": "QĐ phân công", "freq": "Đầu năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Phê duyệt báo cáo tự đánh giá CLGD", "detail": "Xem xét, ký trình", "product": "Báo cáo CLGD", "freq": "Theo chu kỳ", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Báo cáo tổng kết năm học", "detail": "Tổng hợp báo cáo", "product": "Báo cáo tổng kết", "freq": "2 lần/năm", "group": "N2", "score": "200"},
+      {"sec": "Hiệu trưởng", "name": "Xây dựng KH quản lý 4 điểm", "detail": "Lập KH điều phối", "product": "KH quản lý", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Chủ trì họp điều hành Phó HT", "detail": "Họp hàng tháng", "product": "Biên bản", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Hiệu trưởng", "name": "Kiểm tra, giám sát 4 điểm", "detail": "Kiểm tra định kỳ", "product": "Báo cáo", "freq": "Hàng quý", "group": "N2", "score": "200"},
+      {"sec": "Hiệu trưởng", "name": "Chỉ đạo xây dựng KH phát triển 5 năm", "detail": "Lập KH chiến lược", "product": "KH 5 năm", "freq": "1 lần/chu kỳ", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Quyết định đầu tư, mua sắm lớn", "detail": "Phê duyệt tờ trình", "product": "QĐ mua sắm", "freq": "Theo nhu cầu", "group": "N2", "score": "200"},
+      {"sec": "Hiệu trưởng", "name": "Ký kết quy chế phối hợp các bên", "detail": "Ký quy chế", "product": "Quy chế phối hợp", "freq": "Hàng năm", "group": "N3", "score": "300"},
+      {"sec": "Hiệu trưởng", "name": "Tập huấn Phó HT quản lý gộp", "detail": "Tổ chức tập huấn", "product": "Biên bản", "freq": "1 lần/năm", "group": "N2", "score": "200"},
+      {"sec": "PHT Chuyên môn", "name": "Xây dựng KH chuyên môn toàn trường", "detail": "Lập KH chuyên môn", "product": "KH chuyên môn", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "PHT Chuyên môn", "name": "Duyệt KH giáo dục các tổ chuyên môn", "detail": "Xem xét, duyệt", "product": "KH tổ", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "PHT Chuyên môn", "name": "Tổ chức thao giảng, hội giảng cấp trường", "detail": "Lập KH, tổ chức", "product": "KH thao giảng", "freq": "2 lần/năm", "group": "N2", "score": "200"},
+      {"sec": "PHT Chuyên môn", "name": "Kiểm tra hoạt động sư phạm nhà giáo", "detail": "Dự giờ, kiểm tra", "product": "Phiếu dự giờ", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "PHT Chuyên môn", "name": "Chỉ đạo sinh hoạt chuyên môn định kỳ", "detail": "Dự họp tổ", "product": "Biên bản", "freq": "2 lần/tháng", "group": "N1", "score": "100"},
+      {"sec": "PHT Nuôi dưỡng - AT - CSVC", "name": "Xây dựng KH nuôi dưỡng toàn trường", "detail": "Lập KH nuôi dưỡng", "product": "KH nuôi dưỡng", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "PHT Nuôi dưỡng - AT - CSVC", "name": "Kiểm tra vệ sinh ATTP 4 bếp", "detail": "Kiểm tra đột xuất/định kỳ", "product": "Biên bản ATTP", "freq": "Hàng tuần", "group": "N1", "score": "100"},
+      {"sec": "PHT Nuôi dưỡng - AT - CSVC", "name": "Kiểm tra lưu mẫu thức ăn 24h", "detail": "Kiểm tra sổ lưu", "product": "Sổ lưu mẫu", "freq": "Hàng ngày", "group": "N1", "score": "100"},
+      {"sec": "PHT Nuôi dưỡng - AT - CSVC", "name": "Kiểm tra an toàn CSVC, PCCC 4 điểm", "detail": "Kiểm tra sân chơi, bình PCCC", "product": "Biên bản CSVC", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "PHT Nuôi dưỡng - AT - CSVC", "name": "Tổng hợp chấm công toàn trường", "detail": "Đối chiếu bảng công trình HT", "product": "Bảng chấm công", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Tổ trưởng chuyên môn", "name": "Xây dựng KH hoạt động của Tổ", "detail": "Lập kế hoạch tổ theo tháng", "product": "KH tổ được duyệt", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Tổ trưởng chuyên môn", "name": "Tổ chức sinh hoạt chuyên môn Tổ", "detail": "Họp tổ 2 tuần/lần", "product": "Biên bản sinh hoạt", "freq": "2 lần/tháng", "group": "N1", "score": "100"},
+      {"sec": "Tổ trưởng chuyên môn", "name": "Kiểm tra giáo án, hồ sơ giáo viên", "detail": "Ký duyệt giáo án tuần", "product": "Giáo án đã duyệt", "freq": "Hàng tuần", "group": "N1", "score": "100"},
+      {"sec": "Kế toán", "name": "Lập dự toán thu chi ngân sách năm", "detail": "Xây dựng dự toán", "product": "Bản dự toán", "freq": "1 lần/năm", "group": "N3", "score": "300"},
+      {"sec": "Kế toán", "name": "Tính lương và các khoản phụ cấp", "detail": "Lập bảng thanh toán lương", "product": "Bảng lương", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Kế toán", "name": "Đối chiếu bán trú 4 điểm trường", "detail": "Đối chiếu xuất ăn, tiền ăn", "product": "Biên bản bán trú", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Văn thư", "name": "Tiếp nhận, xử lý công văn đến", "detail": "Vào sổ, chuyển xử lý", "product": "Sổ văn bản đến", "freq": "Hàng ngày", "group": "N1", "score": "100"},
+      {"sec": "Văn thư", "name": "Phát hành văn bản đi của nhà trường", "detail": "Lấy số, đóng dấu, lưu trữ", "product": "Sổ văn bản đi", "freq": "Hàng ngày", "group": "N1", "score": "100"},
+      {"sec": "Y tế học đường", "name": "Khám sức khỏe, theo dõi cân đo trẻ", "detail": "Cân đo định kỳ 3 lần/năm", "product": "Sổ theo dõi sức khỏe", "freq": "Định kỳ", "group": "N2", "score": "200"},
+      {"sec": "Y tế học đường", "name": "Tính khẩu phần ăn cho trẻ", "detail": "Tính ăn trên phần mềm", "product": "Bảng tính khẩu phần", "freq": "Hàng tuần", "group": "N1", "score": "100"},
+      {"sec": "Bảo vệ", "name": "Trực cổng giờ đón trả trẻ an toàn", "detail": "Mở cổng, kiểm soát người lạ", "product": "Sổ nhật ký ca trực", "freq": "Hàng ngày", "group": "N1", "score": "100"},
+      {"sec": "Bảo vệ", "name": "Kiểm tra hệ thống PCCC, điện nước đêm", "detail": "Kiểm tra bình, khóa cửa", "product": "Biên bản PCCC", "freq": "Hàng tháng", "group": "N1", "score": "100"},
+      {"sec": "Nhân viên nuôi dưỡng", "name": "Tiếp nhận, kiểm thực nguyên liệu thực phẩm", "detail": "Giao nhận 3 bước", "product": "Sổ kiểm thực 3 bước", "freq": "Hàng ngày", "group": "N1", "score": "100"},
+      {"sec": "Nhân viên nuôi dưỡng", "name": "Chế biến và chia ăn đúng định mức", "detail": "Nấu ăn đúng giờ, an toàn", "product": "Suất ăn của trẻ", "freq": "Hàng ngày", "group": "N1", "score": "100"},
+      {"sec": "Giáo viên", "name": "Soạn kế hoạch bài dạy (Giáo án)", "detail": "Soạn giáo án trước 1 tuần", "product": "Giáo án tuần", "freq": "Hàng tuần", "group": "N1", "score": "100"},
+      {"sec": "Giáo viên", "name": "Đón, trả trẻ và theo dõi sức khỏe ngày", "detail": "Điểm danh, kiểm tra trẻ", "product": "Sổ đón trả trẻ", "freq": "Hàng ngày", "group": "N1", "score": "100"}
+    ];
+
+    // Dữ liệu mẫu khởi tạo
+    let tasks = [
+      {
+        id: "NV0012",
+        month: "9/2026",
+        area: "Khu Ngọc Chi",
+        recurring: "Thường xuyên",
+        att: "Không",
+        desc: "Đồng bộ hệ thống camera an ninh 04 điểm trường",
+        assignee: "Trần Thế Hoàng",
+        approver: "PHT2",
+        authority: "Tự kiểm tra; linh kiện hỏng báo BGH",
+        deadline: "2026-09-18T16:00",
+        progress: 100,
+        status: "Hoàn thành",
+        result: "100% camera kết nối ổn định",
+        proof: "https://drive.google.com/demo1",
+        reason: "Bình thường"
+      },
+      {
+        id: "NV0031",
+        month: "9/2026",
+        area: "Khu Tàm Xá",
+        recurring: "Thường xuyên",
+        att: "Có",
+        desc: "Kiểm tra 100% bình chữa cháy tại điểm thôn Đông theo 4 tiêu chí",
+        assignee: "Hoàng Việt Anh",
+        approver: "PHT2",
+        authority: "Kê lại vị trí; bình tụt áp báo PHT2",
+        deadline: "2026-09-18T16:00",
+        progress: 100,
+        status: "Hoàn thành",
+        result: "12/12 bình kiểm tra đạt chuẩn, 01 bình tụt áp đề xuất nạp",
+        proof: "https://drive.google.com/demo2",
+        reason: "Bình thường"
+      },
+      {
+        id: "NV0035",
+        month: "9/2026",
+        area: "Khu Vĩnh Thanh",
+        recurring: "Phát sinh",
+        att: "Không",
+        desc: "Sửa chữa máy bơm nước phục vụ bếp ăn bán trú Vĩnh Thanh",
+        assignee: "Phạm Thị Hồng Phượng",
+        approver: "PHT2",
+        authority: "Chủ động gọi thợ; kinh phí > 1tr trình HT",
+        deadline: "2026-09-16T16:00",
+        progress: 60,
+        status: "Quá hạn",
+        result: "Đơn vị cung cấp báo thiếu phụ tùng thay thế",
+        proof: "",
+        reason: "Trễ khách quan (BM08)"
+      },
+      {
+        id: "NV0038",
+        month: "9/2026",
+        area: "Khu Tàm Xá",
+        recurring: "Phát sinh",
+        att: "Có",
+        desc: "Xử lý bu lông cầu trượt bị lỏng tại sân chơi thôn Đông",
+        assignee: "Hoàng Thị Kiều Mai",
+        approver: "Hiệu trưởng",
+        authority: "Tạm dừng khu vực nguy cơ ngay lập tức",
+        deadline: "2026-09-17T14:00",
+        progress: 100,
+        status: "Hoàn thành",
+        result: "Đã siết lại bu lông, nghiệm thu đưa vào sử dụng",
+        proof: "https://drive.google.com/demo3",
+        reason: "Bình thường"
+      },
+      {
+        id: "NV0042",
+        month: "9/2026",
+        area: "Khu Ngọc Chi",
+        recurring: "Thường xuyên",
+        att: "Không",
+        desc: "Lập bảng đối chiếu bán trú tháng 9 với Kế toán",
+        assignee: "Nguyễn Thị Hòa",
+        approver: "PHT2",
+        authority: "Đối chiếu chứng từ thực tế",
+        deadline: "2026-09-28T16:00",
+        progress: 100,
+        status: "Hoàn thành",
+        result: "Đã hoàn thành đối soát, số liệu trùng khớp",
+        proof: "",
+        reason: "Bình thường"
+      },
+      {
+        id: "NV0045",
+        month: "9/2026",
+        area: "Khu Ngọc Chi",
+        recurring: "Thường xuyên",
+        att: "Không",
+        desc: "Nộp kế hoạch giáo dục tháng 10 khối Mẫu giáo Lớn",
+        assignee: "Nguyễn Thị Hồng Nhâm",
+        approver: "PHT1",
+        authority: "Thống nhất trong tổ",
+        deadline: "2026-09-29T16:00",
+        progress: 90,
+        status: "Đang thực hiện",
+        result: "Đang tổng hợp các lớp",
+        proof: "",
+        reason: "Bình thường"
+      },
+      {
+        id: "NV0048",
+        month: "9/2026",
+        area: "Khu Tàm Xá",
+        recurring: "Thường xuyên",
+        att: "Không",
+        desc: "Tổng hợp biểu đồ tăng trưởng sức khỏe trẻ đợt 1",
+        assignee: "Lê Thị Linh",
+        approver: "PHT2",
+        authority: "Liên hệ GV lấy số liệu",
+        deadline: "2026-09-25T16:00",
+        progress: 40,
+        status: "Quá hạn",
+        result: "Chưa nhận đủ số liệu lớp",
+        proof: "",
+        reason: "Bình thường"
+      }
+    ];
+
+    let currentMonth = "9/2026";
+    let isAdmin = false;
+    let currentEditTaskId = null;
+
+    window.onload = function() {
+      populateStaffDatalist();
+      renderDashboard();
+      lucide.createIcons();
+    };
+
+    function populateStaffDatalist() {
+      const datalist = document.getElementById('staff-datalist');
+      const filterSelect = document.getElementById('filter-assignee');
+      datalist.innerHTML = '';
+      filterSelect.innerHTML = '<option value="ALL">-- Lọc theo nhân sự (114 người) --</option>';
+
+      RAW_STAFF.forEach(s => {
+        datalist.innerHTML += `<option value="${s.name}">${s.role} - ${s.team} (${s.area})</option>`;
+        filterSelect.innerHTML += `<option value="${s.name}">${s.name} (${s.role} - ${s.area})</option>`;
+      });
+    }
+
+    function changeMonthCycle() {
+      currentMonth = document.getElementById('current-month-select').value;
+      document.getElementById('stat-cycle-label').innerText = `Chu kỳ: Tháng ${currentMonth}`;
+      document.getElementById('kpi-table-title').innerText = `BẢNG TÍNH ĐIỂM KPI CÔNG VIỆC THÁNG ${currentMonth}`;
+      document.getElementById('monitor-month-tag').innerText = `Chu kỳ: Tháng ${currentMonth}`;
+      renderDashboard();
+      renderTasksTable();
+      renderKPITable();
+      renderMonitorTable();
+    }
+
+    function switchTab(tabId) {
+      ['dashboard', 'tasks', 'catalog', 'kpi', 'monitor'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = 'py-3 px-2 flex items-center gap-1.5 text-slate-500 hover:text-slate-900 whitespace-nowrap';
+      });
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).className = 'py-3 px-2 flex items-center gap-1.5 tab-active whitespace-nowrap';
+
+      if(tabId === 'dashboard') renderDashboard();
+      if(tabId === 'tasks') renderTasksTable();
+      if(tabId === 'catalog') renderCatalogTable();
+      if(tabId === 'kpi') renderKPITable();
+      if(tabId === 'monitor') renderMonitorTable();
+    }
+
+    // Admin Auth
+    function openAdminModal() { document.getElementById('modal-admin').classList.remove('hidden'); }
+    function closeAdminModal() { document.getElementById('modal-admin').classList.add('hidden'); }
+
+    function loginAdmin() {
+      const pass = document.getElementById('admin-pass').value;
+      if (pass === 'admin123') {
+        isAdmin = true;
+        closeAdminModal();
+        document.getElementById('admin-pass').value = '';
+        document.getElementById('admin-badge').classList.remove('hidden');
+        document.getElementById('btn-login-admin').classList.add('hidden');
+        document.getElementById('btn-logout-admin').classList.remove('hidden');
+        document.getElementById('btn-create-task').classList.remove('hidden');
+        document.getElementById('btn-admin-clone').classList.remove('hidden');
+        renderTasksTable();
+        alert("Đăng nhập quyền Ban Giám Hiệu (Admin) thành công! Các chức năng Sửa/Xóa nhiệm vụ đã được kích hoạt.");
+      } else {
+        alert("Mật khẩu không chính xác!");
+      }
+    }
+
+    function logoutAdmin() {
+      isAdmin = false;
+      document.getElementById('admin-badge').classList.add('hidden');
+      document.getElementById('btn-login-admin').classList.remove('hidden');
+      document.getElementById('btn-logout-admin').classList.add('hidden');
+      document.getElementById('btn-create-task').classList.add('hidden');
+      document.getElementById('btn-admin-clone').classList.add('hidden');
+      renderTasksTable();
+      alert("Đã thoát chế độ Quản trị.");
+    }
+
+    // Sao chép việc thường xuyên
+    function cloneRecurringTasks() {
+      const nextMonth = prompt("Nhập chu kỳ tháng muốn sao chép đến (VD: 10/2026):", "10/2026");
+      if (!nextMonth) return;
+
+      const recurringTasks = tasks.filter(t => t.month === currentMonth && t.recurring === "Thường xuyên");
+      if (recurringTasks.length === 0) {
+        alert("Không có nhiệm vụ thường xuyên nào trong tháng hiện tại!");
+        return;
+      }
+
+      recurringTasks.forEach((t, i) => {
+        const nextId = "NV" + (tasks.length + 100 + i).toString().padStart(4, '0');
+        tasks.push({
+          ...t,
+          id: nextId,
+          month: nextMonth,
+          progress: 0,
+          status: "Đang thực hiện",
+          result: "",
+          proof: "",
+          reason: "Bình thường"
+        });
+      });
+
+      alert(`Đã sao chép thành công ${recurringTasks.length} nhiệm vụ thường xuyên sang chu kỳ ${nextMonth}!`);
+      document.getElementById('current-month-select').value = nextMonth;
+      changeMonthCycle();
+    }
+
+    // Render Dashboard
+    function renderDashboard() {
+      const currentTasks = tasks.filter(t => t.month === currentMonth);
+      const total = currentTasks.length;
+      const done = currentTasks.filter(t => t.status === 'Hoàn thành').length;
+      const pending = currentTasks.filter(t => t.status === 'Chờ duyệt').length;
+      const overdue = currentTasks.filter(t => t.status === 'Quá hạn').length;
+      const att = currentTasks.filter(t => t.att === 'Có' && t.status !== 'Hoàn thành').length;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-done').innerText = done;
+      document.getElementById('stat-pending').innerText = pending;
+      document.getElementById('stat-overdue').innerText = overdue;
+      document.getElementById('stat-att').innerText = att;
+      document.getElementById('stat-rate').innerText = total > 0 ? `${Math.round((done / total) * 100)}% đúng hạn` : '0%';
+
+      ['Khu Ngọc Chi', 'Khu Tàm Xá', 'Khu Vĩnh Thanh'].forEach(area => {
+        const aTasks = currentTasks.filter(t => t.area === area);
+        const aDone = aTasks.filter(t => t.status === 'Hoàn thành').length;
+        const rate = aTasks.length > 0 ? Math.round((aDone / aTasks.length) * 100) : 0;
+        let prefix = area === 'Khu Ngọc Chi' ? 'nc' : (area === 'Khu Tàm Xá' ? 'tx' : 'vt');
+        document.getElementById(`area-${prefix}-count`).innerText = `${aTasks.length} việc`;
+        document.getElementById(`area-${prefix}-rate`).innerText = `${rate}% hoàn thành`;
+      });
+
+      const hotTasks = currentTasks.filter(t => t.status === 'Quá hạn' || (t.att === 'Có' && t.status !== 'Hoàn thành'));
+      const tbody = document.getElementById('hot-tasks-body');
+      tbody.innerHTML = '';
+
+      if (hotTasks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-slate-400">Không có việc quá hạn hoặc nguy cơ mất an toàn trẻ.</td></tr>`;
+      } else {
+        hotTasks.forEach(t => {
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50">
+              <td class="p-2 font-bold font-mono text-blue-700">${t.id}</td>
+              <td class="p-2 text-slate-600">${t.area}</td>
+              <td class="p-2 font-medium ${t.att === 'Có' ? 'text-rose-700 font-bold' : ''}">
+                ${t.att === 'Có' ? '<span class="bg-rose-100 text-rose-700 px-1 py-0.5 rounded mr-1">ATT</span>' : ''}
+                ${t.desc}
+              </td>
+              <td class="p-2 font-semibold">${t.assignee}</td>
+              <td class="p-2 text-slate-500">${formatDate(t.deadline)}</td>
+              <td class="p-2 font-bold text-blue-600">${t.progress}%</td>
+              <td class="p-2">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${t.status === 'Quá hạn' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}">
+                  ${t.status}
+                </span>
+              </td>
+            </tr>
+          `;
+        });
+      }
+      lucide.createIcons();
+    }
+
+    // Render Bảng Nhiệm Vụ 6 RÕ (Có nút Sửa/Xóa cho Admin)
+    function renderTasksTable() {
+      const areaFilter = document.getElementById('filter-area').value;
+      const staffFilter = document.getElementById('filter-assignee').value;
+      const typeFilter = document.getElementById('filter-type').value;
+      const statusFilter = document.getElementById('filter-status').value;
+
+      const filtered = tasks.filter(t => {
+        return t.month === currentMonth &&
+               (areaFilter === 'ALL' || t.area === areaFilter) &&
+               (staffFilter === 'ALL' || t.assignee === staffFilter) &&
+               (typeFilter === 'ALL' || t.recurring === typeFilter) &&
+               (statusFilter === 'ALL' || t.status === statusFilter);
+      });
+
+      const tbody = document.getElementById('tasks-table-body');
+      tbody.innerHTML = '';
+
+      filtered.forEach(t => {
+        let badgeColor = 'bg-slate-100 text-slate-700';
+        if (t.status === 'Hoàn thành') badgeColor = 'bg-emerald-100 text-emerald-800';
+        if (t.status === 'Chờ duyệt') badgeColor = 'bg-amber-100 text-amber-800';
+        if (t.status === 'Quá hạn') badgeColor = 'bg-red-100 text-red-800';
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b">
+            <td class="p-2.5 font-mono font-bold text-blue-700">${t.id}</td>
+            <td class="p-2.5 max-w-xs">
+              <div class="font-semibold text-slate-800 ${t.att === 'Có' ? 'text-rose-700' : ''}">
+                ${t.att === 'Có' ? '<span class="bg-rose-100 text-rose-700 px-1 py-0.5 rounded mr-1 text-[10px]">ATT</span>' : ''}
+                ${t.desc}
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Quyền: ${t.authority || 'Theo quy chế'}</div>
+            </td>
+            <td class="p-2.5 text-slate-600 font-medium">${t.area}</td>
+            <td class="p-2.5 font-bold text-slate-700">${t.assignee}</td>
+            <td class="p-2.5 text-slate-500">${t.approver}</td>
+            <td class="p-2.5 whitespace-nowrap text-slate-600">${formatDate(t.deadline)}</td>
+            <td class="p-2.5 text-[11px] font-medium text-slate-500">${t.recurring}</td>
+            <td class="p-2.5">
+              <div class="flex items-center gap-1.5">
+                <div class="w-14 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div class="bg-blue-600 h-1.5" style="width: ${t.progress}%"></div>
+                </div>
+                <span class="font-bold text-[11px] text-slate-700">${t.progress}%</span>
+              </div>
+            </td>
+            <td class="p-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${t.status}</span></td>
+            <td class="p-2.5 text-center">
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="openReportModal('${t.id}')" class="px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-200 rounded font-semibold text-[11px] transition">
+                  ${isAdmin ? 'Duyệt' : 'Báo Cáo'}
+                </button>
+                ${isAdmin ? `
+                  <button onclick="openEditTaskModal('${t.id}')" title="Sửa nhiệm vụ" class="p-1 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded">
+                    <i data-lucide="edit" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="deleteTask('${t.id}')" title="Xóa nhiệm vụ" class="p-1 text-slate-500 hover:text-rose-700 hover:bg-rose-50 rounded">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    // Render Bảng Danh Mục Sản Phẩm (180 việc)
+    function renderCatalogTable() {
+      const q = document.getElementById('catalog-search').value.toLowerCase();
+      const groupFilter = document.getElementById('catalog-filter-group').value;
+
+      const filtered = CATALOG_DATA.filter(c => {
+        const matchSearch = c.name.toLowerCase().includes(q) || c.detail.toLowerCase().includes(q) || c.product.toLowerCase().includes(q);
+        const matchGroup = groupFilter === 'ALL' || c.sec.includes(groupFilter);
+        return matchSearch && matchGroup;
+      });
+
+      const tbody = document.getElementById('catalog-table-body');
+      tbody.innerHTML = '';
+
+      filtered.forEach((c, idx) => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b">
+            <td class="p-2.5 font-bold text-blue-800 whitespace-nowrap">${c.sec}</td>
+            <td class="p-2.5 font-semibold text-slate-800">${c.name}</td>
+            <td class="p-2.5 text-slate-600">${c.detail}</td>
+            <td class="p-2.5 font-medium text-emerald-700">${c.product}</td>
+            <td class="p-2.5 text-center whitespace-nowrap">${c.freq}</td>
+            <td class="p-2.5 text-center font-bold text-slate-500">${c.group}</td>
+            <td class="p-2.5 text-center font-bold text-blue-700">${c.score || '-'}</td>
+            <td class="p-2.5 text-center whitespace-nowrap">
+              <button onclick="applyFromCatalog(${idx})" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 rounded font-semibold text-[11px] transition">
+                Áp Dụng
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    function applyFromCatalog(idx) {
+      const c = CATALOG_DATA[idx];
+      openCreateTaskModal(isAdmin);
+      document.getElementById('c-desc').value = `${c.name}: ${c.detail} (Sản phẩm: ${c.product})`;
+      document.getElementById('c-recurring').value = c.freq.includes("Hàng") ? "Thường xuyên" : "Phát sinh";
+      switchTab('tasks');
+    }
+
+    // Render Bảng KPI Tháng (Tự Động Tính Toán Tức Thì)
+    function renderKPITable() {
+      const kpiData = {};
+      const currentTasks = tasks.filter(t => t.month === currentMonth);
+
+      RAW_STAFF.forEach(s => {
+        kpiData[s.name] = { name: s.name, role: s.role, area: s.area, total: 0, inProgress: 0, excused: 0, done: 0, progressSum: 0 };
+      });
+
+      currentTasks.forEach(t => {
+        if (!kpiData[t.assignee]) {
+          kpiData[t.assignee] = { name: t.assignee, role: "Cá nhân", area: t.area, total: 0, inProgress: 0, excused: 0, done: 0, progressSum: 0 };
+        }
+        kpiData[t.assignee].total += 1;
+        kpiData[t.assignee].progressSum += t.progress;
+        if (t.reason === 'Trễ khách quan (BM08)') kpiData[t.assignee].excused += 1;
+        if (t.status === 'Hoàn thành') kpiData[t.assignee].done += 1;
+        if (t.status === 'Đang thực hiện') kpiData[t.assignee].inProgress += 1;
+      });
+
+      const tbody = document.getElementById('kpi-table-body');
+      tbody.innerHTML = '';
+
+      Object.values(kpiData).forEach(k => {
+        const effectiveTotal = k.total - k.excused;
+        const kpiRate = effectiveTotal > 0 ? Math.round((k.done / effectiveTotal) * 100) : (k.total > 0 ? 100 : 0);
+        const avgProgress = k.total > 0 ? Math.round(k.progressSum / k.total) : 0;
+
+        let rank = 'Chưa xếp loại';
+        let rankColor = 'text-slate-400 bg-slate-100';
+
+        if (k.total > 0) {
+          if (kpiRate >= 95) { rank = 'Hoàn thành Xuất sắc'; rankColor = 'text-blue-700 bg-blue-50 font-bold'; }
+          else if (kpiRate >= 80) { rank = 'Hoàn thành Tốt'; rankColor = 'text-emerald-700 bg-emerald-50 font-medium'; }
+          else { rank = 'Cần Cải Thiện'; rankColor = 'text-amber-700 bg-amber-50 font-medium'; }
+        }
+
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50 border-b">
+            <td class="p-2.5">
+              <div class="font-bold text-slate-800">${k.name}</div>
+              <div class="text-[10px] text-slate-400">${k.role}</div>
+            </td>
+            <td class="p-2.5 text-slate-600 font-medium">${k.area}</td>
+            <td class="p-2.5 text-center font-bold text-slate-800">${k.total}</td>
+            <td class="p-2.5 text-center text-amber-600 font-medium">${k.inProgress}</td>
+            <td class="p-2.5 text-center text-blue-600 font-medium">${k.excused}</td>
+            <td class="p-2.5 text-center text-emerald-600 font-bold">${k.done}</td>
+            <td class="p-2.5 text-center font-bold text-slate-700">${avgProgress}%</td>
+            <td class="p-2.5 text-center text-sm font-extrabold ${kpiRate >= 95 ? 'text-blue-700' : 'text-slate-800'}">${kpiRate}%</td>
+            <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] ${rankColor}">${rank}</span></td>
+          </tr>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    // Render Bảng Giám Sát Tiến Độ & Xếp Loại 6 RÕ
+    function renderMonitorTable() {
+      const kpiData = {};
+      const currentTasks = tasks.filter(t => t.month === currentMonth);
+
+      currentTasks.forEach(t => {
+        if (!kpiData[t.assignee]) {
+          kpiData[t.assignee] = { name: t.assignee, area: t.area, total: 0, done: 0, overdue: 0, excused: 0 };
+        }
+        kpiData[t.assignee].total += 1;
+        if (t.status === 'Hoàn thành') kpiData[t.assignee].done += 1;
+        if (t.status === 'Quá hạn') kpiData[t.assignee].overdue += 1;
+        if (t.reason === 'Trễ khách quan (BM08)') kpiData[t.assignee].excused += 1;
+      });
+
+      const excellent = [];
+      const sluggish = [];
+
+      Object.values(kpiData).forEach(k => {
+        const effectiveTotal = k.total - k.excused;
+        const rate = effectiveTotal > 0 ? Math.round((k.done / effectiveTotal) * 100) : 0;
+        if (k.total > 0 && rate >= 95) {
+          excellent.push({ ...k, rate });
+        } else if (k.overdue > 0 || (k.total > 0 && rate < 80)) {
+          sluggish.push({ ...k, rate });
+        }
+      });
+
+      document.getElementById('count-excellent').innerText = `${excellent.length} cá nhân`;
+      document.getElementById('count-sluggish').innerText = `${sluggish.length} cá nhân`;
+
+      const excBody = document.getElementById('monitor-excellent-body');
+      excBody.innerHTML = '';
+      if(excellent.length === 0) {
+        excBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">Chưa có cá nhân đạt chuẩn xuất sắc.</td></tr>`;
+      } else {
+        excellent.forEach(k => {
+          excBody.innerHTML += `
+            <tr class="hover:bg-emerald-50/50">
+              <td class="p-2 font-bold text-slate-800">${k.name}</td>
+              <td class="p-2 text-slate-500">${k.area}</td>
+              <td class="p-2 text-center font-bold text-emerald-600">${k.done}/${k.total}</td>
+              <td class="p-2 text-center font-extrabold text-blue-700">${k.rate}%</td>
+              <td class="p-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold">Biểu dương</span></td>
+            </tr>
+          `;
+        });
+      }
+
+      const slugBody = document.getElementById('monitor-sluggish-body');
+      slugBody.innerHTML = '';
+      if(sluggish.length === 0) {
+        slugBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">Không có cá nhân trì trệ trong tháng.</td></tr>`;
+      } else {
+        sluggish.forEach(k => {
+          slugBody.innerHTML += `
+            <tr class="hover:bg-rose-50/50">
+              <td class="p-2 font-bold text-slate-800">${k.name}</td>
+              <td class="p-2 text-slate-500">${k.area}</td>
+              <td class="p-2 text-center font-bold text-rose-600">${k.overdue} việc trễ</td>
+              <td class="p-2 text-center font-extrabold text-rose-700">${k.rate}%</td>
+              <td class="p-2 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] bg-rose-100 text-rose-800 font-bold">Đôn đốc / Nhắc hạn</span></td>
+            </tr>
+          `;
+        });
+      }
+      lucide.createIcons();
+    }
+
+    // Modal Giao việc / Tự đăng ký
+    function openCreateTaskModal(asAdmin = false) {
+      document.getElementById('c-mode').value = "CREATE";
+      const nextId = "NV" + (tasks.length + 100).toString().padStart(4, '0');
+      document.getElementById('c-id').value = nextId;
+      document.getElementById('form-create-task').reset();
+      document.getElementById('c-id').value = nextId;
+
+      document.getElementById('create-modal-title').innerHTML = asAdmin ? 
+        `<i data-lucide="file-plus" class="w-5 h-5 text-blue-700"></i> BAN GIÁM HIỆU GIAO VIỆC 6 RÕ (BM01)` :
+        `<i data-lucide="user-plus" class="w-5 h-5 text-emerald-600"></i> CÁ NHÂN TỰ ĐĂNG KÝ / BÁO CÁO NHIỆM VỤ`;
+      document.getElementById('btn-submit-task').innerText = asAdmin ? "Ban Hành Nhiệm Vụ" : "Đăng Ký Thực Hiện";
+      document.getElementById('modal-create-task').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function openEditTaskModal(taskId) {
+      const t = tasks.find(x => x.id === taskId);
+      if (!t) return;
+
+      document.getElementById('c-mode').value = "EDIT";
+      document.getElementById('c-id').value = t.id;
+      document.getElementById('c-area').value = t.area;
+      document.getElementById('c-recurring').value = t.recurring;
+      document.getElementById('c-att').value = t.att;
+      document.getElementById('c-desc').value = t.desc;
+      document.getElementById('c-assignee').value = t.assignee;
+      document.getElementById('c-approver').value = t.approver;
+      document.getElementById('c-authority').value = t.authority || '';
+      document.getElementById('c-deadline').value = t.deadline;
+
+      document.getElementById('create-modal-title').innerHTML = `<i data-lucide="edit-3" class="w-5 h-5 text-blue-700"></i> SỬA ĐỔI NHIỆM VỤ 6 RÕ [${t.id}]`;
+      document.getElementById('btn-submit-task').innerText = "Lưu Thay Đổi";
+      document.getElementById('modal-create-task').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeCreateTaskModal() { document.getElementById('modal-create-task').classList.add('hidden'); }
+
+    function handleSaveTaskForm(e) {
+      e.preventDefault();
+      const mode = document.getElementById('c-mode').value;
+      const taskId = document.getElementById('c-id').value;
+
+      if (mode === "EDIT") {
+        const t = tasks.find(x => x.id === taskId);
+        if (t) {
+          t.area = document.getElementById('c-area').value;
+          t.recurring = document.getElementById('c-recurring').value;
+          t.att = document.getElementById('c-att').value;
+          t.desc = document.getElementById('c-desc').value;
+          t.assignee = document.getElementById('c-assignee').value;
+          t.approver = document.getElementById('c-approver').value;
+          t.authority = document.getElementById('c-authority').value;
+          t.deadline = document.getElementById('c-deadline').value;
+        }
+        alert(`Đã cập nhật nhiệm vụ ${taskId} thành công!`);
+      } else {
+        const newTask = {
+          id: taskId,
+          month: currentMonth,
+          area: document.getElementById('c-area').value,
+          recurring: document.getElementById('c-recurring').value,
+          att: document.getElementById('c-att').value,
+          desc: document.getElementById('c-desc').value,
+          assignee: document.getElementById('c-assignee').value,
+          approver: document.getElementById('c-approver').value,
+          authority: document.getElementById('c-authority').value,
+          deadline: document.getElementById('c-deadline').value,
+          progress: 0,
+          status: "Đang thực hiện",
+          result: "",
+          proof: "",
+          reason: "Bình thường"
+        };
+        tasks.unshift(newTask);
+        alert(`Đã thêm nhiệm vụ ${newTask.id} vào chu kỳ Tháng ${currentMonth}!`);
+      }
+
+      closeCreateTaskModal();
+      renderTasksTable();
+      renderDashboard();
+      renderKPITable();
+      renderMonitorTable();
+    }
+
+    function deleteTask(taskId) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa nhiệm vụ [${taskId}]? Thao tác này không thể hoàn tác.`)) return;
+      tasks = tasks.filter(x => x.id !== taskId);
+      renderTasksTable();
+      renderDashboard();
+      renderKPITable();
+      renderMonitorTable();
+      alert(`Đã xóa nhiệm vụ ${taskId}.`);
+    }
+
+    // Modal Báo cáo tiến độ
+    function openReportModal(taskId) {
+      currentEditTaskId = taskId;
+      const t = tasks.find(x => x.id === taskId);
+      document.getElementById('r-task-id').innerText = `[${t.id}] - ${t.area}`;
+      document.getElementById('r-task-desc').innerText = t.desc;
+      document.getElementById('r-task-meta').innerText = `Chủ trì: ${t.assignee} | Hạn: ${formatDate(t.deadline)} | Tính chất: ${t.recurring}`;
+      document.getElementById('r-progress').value = t.progress;
+      document.getElementById('r-progress-val').innerText = `${t.progress}%`;
+      document.getElementById('r-result').value = t.result || '';
+      document.getElementById('r-proof').value = t.proof || '';
+
+      const adminSec = document.getElementById('admin-approval-section');
+      if (isAdmin) {
+        adminSec.classList.remove('hidden');
+        document.getElementById('r-admin-status').value = t.status;
+        document.getElementById('r-admin-reason').value = t.reason;
+      } else {
+        adminSec.classList.add('hidden');
+      }
+
+      document.getElementById('modal-report-progress').classList.remove('hidden');
+    }
+    function closeReportModal() { document.getElementById('modal-report-progress').classList.add('hidden'); }
+
+    function updateProgressLabel(val) {
+      document.getElementById('r-progress-val').innerText = `${val}%`;
+    }
+
+    function handleSaveReport() {
+      const t = tasks.find(x => x.id === currentEditTaskId);
+      if (t) {
+        t.progress = parseInt(document.getElementById('r-progress').value);
+        t.result = document.getElementById('r-result').value;
+        t.proof = document.getElementById('r-proof').value;
+
+        if (isAdmin) {
+          t.status = document.getElementById('r-admin-status').value;
+          t.reason = document.getElementById('r-admin-reason').value;
+        } else {
+          if (t.progress === 100) {
+            t.status = "Chờ duyệt";
+          } else if (t.progress > 0) {
+            t.status = "Đang thực hiện";
+          }
+        }
+      }
+      closeReportModal();
+      renderTasksTable();
+      renderDashboard();
+      renderKPITable();
+      renderMonitorTable();
+      alert("Đã cập nhật mức độ hoàn thành và tự động đồng bộ vào KPI & Giám sát!");
+    }
+
+    function exportCSV() {
+      let csv = "\uFEFFMã NV,Tháng,Khu Vực,Tính Chất,An Toàn Trẻ,Nội Dung,Chủ Trì,Duyệt,Hạn Chót,Tiến Độ,Trạng Thái,Kết Quả,Minh Chứng,Giải Trình\n";
+      tasks.filter(t => t.month === currentMonth).forEach(t => {
+        csv += `"${t.id}","${t.month}","${t.area}","${t.recurring}","${t.att}","${t.desc}","${t.assignee}","${t.approver}","${t.deadline}","${t.progress}%","${t.status}","${t.result}","${t.proof}","${t.reason}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `BaoCao_6RO_MNVT2_Thang_${currentMonth.replace('/','-')}.csv`;
+      link.click();
+    }
+
+    function formatDate(dateStr) {
+      if(!dateStr) return "-";
+      const d = new Date(dateStr);
+      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
+  </script>
+</body>
+</html>
